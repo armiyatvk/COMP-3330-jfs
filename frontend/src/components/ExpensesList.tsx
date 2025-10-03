@@ -1,35 +1,24 @@
-import {useEffect, useState} from "react";
-import {api} from "../lib/api";
-
-type Expense = {id: number; title: string; amount: number};
+import {useQuery} from "@tanstack/react-query";
 
 export function ExpensesList() {
-  const [items, setItems] = useState<Expense[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const {data, isLoading, isError, error} = useQuery({
+    queryKey: ["expenses"],
+    queryFn: async () => {
+      const res = await fetch("/api/expenses");
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json() as Promise<{expenses: {id: number; title: string; amount: number}[]}>;
+    },
+  });
 
-  useEffect(() => {
-    api
-      .getExpenses()
-      .then((d) => setItems(d.expenses))
-      .catch((e) => setError(e.message ?? "Failed to fetch"));
-  }, []);
-
-  if (error) return <p className="text-sm text-red-600">{error}</p>;
-  if (!items) return <p className="text-sm text-muted-foreground">Loading…</p>;
-
-  if (items.length === 0)
-    return (
-      <div className="rounded border bg-background p-6">
-        <p className="text-sm text-muted-foreground">No expenses yet.</p>
-      </div>
-    );
+  if (isLoading) return <p>Loading…</p>;
+  if (isError) return <p>Error: {(error as Error).message}</p>;
 
   return (
     <ul className="mt-4 space-y-2">
-      {items.map((e) => (
-        <li key={e.id} className="flex items-center justify-between rounded border bg-background text-foreground p-3 shadow-sm">
-          <span className="font-medium">{e.title}</span>
-          <span className="tabular-nums">${e.amount}</span>
+      {data!.expenses.map((e) => (
+        <li key={e.id} className="flex justify-between rounded border p-2 bg-white">
+          <span>{e.title}</span>
+          <span>${e.amount}</span>
         </li>
       ))}
     </ul>
