@@ -79,9 +79,16 @@ export const expensesRoute = new Hono()
     return c.json({expense: expenseWithUrl});
   })
 
-  // POST /api/expenses → create
   .post("/", zValidator("json", createExpenseSchema), async (c) => {
     const data = c.req.valid("json");
+    console.log("🧾 Incoming POST /api/expenses data:", data);
+
+    // 💣 Force fail if title contains "fail"
+    if (data.title && data.title.toLowerCase().includes("fail")) {
+      console.log("❌ Triggered FAIL test — returning 500");
+      return c.json({error: "Forced failure for testing rollback"}, 500);
+    }
+
     const [created] = await db.insert(expenses).values(data).returning();
     return c.json({expense: created}, 201);
   })

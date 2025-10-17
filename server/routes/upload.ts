@@ -7,8 +7,8 @@ import {PutObjectCommand} from "@aws-sdk/client-s3";
 import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
 
 export const uploadRoute = new Hono().post("/sign", async (c) => {
-  //   const err = await requireAuth(c);
-  //   if (err) return err;
+  const err = await requireAuth(c);
+  if (err) return err;
 
   const {filename, type} = await c.req.json();
   const key = `uploads/${Date.now()}-${filename}`;
