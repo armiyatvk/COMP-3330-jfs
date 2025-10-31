@@ -3,8 +3,8 @@ FROM oven/bun:1
 WORKDIR /app
 
 # Install backend deps
-COPY package.json bun.lockb ./
-RUN bun install || bun install --no-cache
+COPY package.json ./
+RUN bun install
 
 # Copy frontend and install its deps
 COPY frontend ./frontend
