@@ -2,18 +2,19 @@
 FROM oven/bun:1
 WORKDIR /app
 
-COPY package.json ./
-RUN bun install
+# Install backend deps
+COPY package.json bun.lockb ./
+RUN bun install || bun install --no-cache
 
-# Build frontend
+# Copy frontend and install its deps
 COPY frontend ./frontend
-RUN cd frontend && bun run build
+RUN cd frontend && bun install && bun run build
 
-# Copy backend and built frontend to /server/public
+# Copy backend + built frontend to server/public
 COPY server ./server
 RUN mkdir -p server/public && cp -r frontend/dist/* server/public/
 
-# Expose port & start server
+# Expose port and run app
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["bun", "run", "server/index.ts"]
