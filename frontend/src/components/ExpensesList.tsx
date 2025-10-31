@@ -5,7 +5,7 @@ type Expense = {id: number; title: string; amount: number; fileUrl: string | nul
 export function ExpensesList() {
   const qc = useQueryClient();
 
-  const {data, isLoading, isError, error} = useQuery({
+  const {data, isLoading, isError} = useQuery({
     queryKey: ["expenses"],
     queryFn: async () => {
       const res = await fetch("/api/expenses", {credentials: "include"});
